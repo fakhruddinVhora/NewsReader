@@ -4,7 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.newsreader.presentation.newsscreen.NewsScreen
+import com.example.newsreader.presentation.newsscreen.NewsScreenViewModel
 import com.example.newsreader.presentation.theme.NewsReaderTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,7 +17,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NewsReaderTheme {
-                NewsScreen()
+                val viewModel: NewsScreenViewModel = hiltViewModel()
+                NewsScreen(state = viewModel.state, onEvent = viewModel::onEvent)
             }
         }
     }

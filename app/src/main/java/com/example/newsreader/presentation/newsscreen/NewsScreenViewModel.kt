@@ -3,6 +3,7 @@ package com.example.newsreader.presentation.newsscreen
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.util.fastCbrt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.newsreader.domain.model.Article
@@ -21,18 +22,40 @@ class NewsScreenViewModel @Inject constructor(
 
     var articles by mutableStateOf<List<Article>>(emptyList())
 
+    var state by mutableStateOf(NewsState())
+
+    fun onEvent(event: NewsScreenEvent) {
+        when (event) {
+            is NewsScreenEvent.onNewsCategoryChanged -> {
+                state = state.copy(category = event.category)
+                getNewsArticles(state.category)
+            }
+
+            is NewsScreenEvent.onNewsCardClicked -> {}
+            is NewsScreenEvent.onSearchQueryChanged -> {}
+            is NewsScreenEvent.onCloseIconClicked -> {}
+            is NewsScreenEvent.onSearchIconClicked -> {}
+        }
+    }
+
     init {
         getNewsArticles("general")
     }
+
     private fun getNewsArticles(category: String) {
         viewModelScope.launch {
+            state = state.copy(isLoading = true)
             when (val result = newsRepository.getTopHeadlines(category)) {
                 is Resource.Success -> {
-                    articles = result.data ?: emptyList()
+                    state = state.copy(articles = result.data ?: emptyList(), isLoading = false)
                 }
 
                 is Resource.Error -> {
-                    // Handle error
+                    state = state.copy(
+                        articles = emptyList(),
+                        isLoading = false,
+                        error = result.message ?: "An unexpected error occurred"
+                    )
                 }
             }
         }
