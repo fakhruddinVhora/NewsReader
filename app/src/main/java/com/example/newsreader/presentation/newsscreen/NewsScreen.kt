@@ -13,12 +13,18 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +33,7 @@ import androidx.compose.ui.text.input.KeyboardType.Companion.Text
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.newsreader.domain.model.Article
+import com.example.newsreader.presentation.component.BottomSheetComponent
 import com.example.newsreader.presentation.component.CategoryTabRow
 import com.example.newsreader.presentation.component.NewsArticleCard
 import com.example.newsreader.presentation.component.NewsScreenTopBar
@@ -45,6 +52,32 @@ fun NewsScreen(state: NewsState, onEvent: (NewsScreenEvent) -> Unit) {
         initialPageOffsetFraction = 0.0f,
         pageCount = { categories.size })
     val coroutineScope = rememberCoroutineScope()
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var shouldShowBottomSheet by remember {
+        mutableStateOf(false)
+    }
+    if (shouldShowBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { shouldShowBottomSheet = false },
+            sheetState = sheetState
+        ) {
+            state.selectedArticle?.let {
+                BottomSheetComponent(
+                    article = it,
+                    onReadFullStoryButtonClicked = {
+                        coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                shouldShowBottomSheet = false
+                            }
+                        }
+                    }
+                )
+            }
+        }
+    } else {
+        // Hide the bottom sheet
+    }
 
     LaunchedEffect(key1 = pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
@@ -72,7 +105,10 @@ fun NewsScreen(state: NewsState, onEvent: (NewsScreenEvent) -> Unit) {
             HorizontalPager(state = pagerState) {
                 NewsArticleList(
                     state,
-                    onCardClicked = {},
+                    onCardClicked = {
+                        shouldShowBottomSheet = true
+                        onEvent(NewsScreenEvent.onNewsCardClicked(it))
+                    },
                     onRetry = { onEvent(NewsScreenEvent.onNewsCategoryChanged(state.category)) })
             }
         }

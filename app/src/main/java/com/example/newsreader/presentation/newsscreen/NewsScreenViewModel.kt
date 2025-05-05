@@ -19,9 +19,6 @@ class NewsScreenViewModel @Inject constructor(
     private val newsRepository: NewsRepository
 ) : ViewModel() {
 
-
-    var articles by mutableStateOf<List<Article>>(emptyList())
-
     var state by mutableStateOf(NewsState())
 
     fun onEvent(event: NewsScreenEvent) {
@@ -31,7 +28,10 @@ class NewsScreenViewModel @Inject constructor(
                 getNewsArticles(state.category)
             }
 
-            is NewsScreenEvent.onNewsCardClicked -> {}
+            is NewsScreenEvent.onNewsCardClicked -> {
+                state = state.copy(selectedArticle = event.article)
+            }
+
             is NewsScreenEvent.onSearchQueryChanged -> {}
             is NewsScreenEvent.onCloseIconClicked -> {}
             is NewsScreenEvent.onSearchIconClicked -> {}

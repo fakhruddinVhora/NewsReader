@@ -6,7 +6,7 @@ sealed class NewsScreenEvent {
     data class onNewsCardClicked(val article: Article) : NewsScreenEvent()
     data class onNewsCategoryChanged(val category: String) : NewsScreenEvent()
     data class onSearchQueryChanged(val searchQuery: String) : NewsScreenEvent()
-    object onSearchIconClicked : NewsScreenEvent()
-    object onCloseIconClicked : NewsScreenEvent()
+    data object onSearchIconClicked : NewsScreenEvent()
+    data object onCloseIconClicked : NewsScreenEvent()
 
 }
