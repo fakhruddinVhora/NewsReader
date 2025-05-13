@@ -60,7 +60,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     // Compose navigation
-    implementation(libs.androidx.navigation.compose)
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     //Dagger - Hilt
     implementation(libs.hilt.android)

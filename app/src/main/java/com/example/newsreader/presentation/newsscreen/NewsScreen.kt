@@ -42,7 +42,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewsScreen(state: NewsState, onEvent: (NewsScreenEvent) -> Unit) {
+fun NewsScreen(state: NewsState, onEvent: (NewsScreenEvent) -> Unit, onReadFullStoryButtonClicked: (String) -> Unit) {
 
     val scrollBehaviourValue = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val categories =
@@ -66,6 +66,7 @@ fun NewsScreen(state: NewsState, onEvent: (NewsScreenEvent) -> Unit) {
                 BottomSheetComponent(
                     article = it,
                     onReadFullStoryButtonClicked = {
+                        onReadFullStoryButtonClicked(it.url?:"")
                         coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
                             if (!sheetState.isVisible) {
                                 shouldShowBottomSheet = false

@@ -1,5 +1,9 @@
 package com.example.newsreader.presentation.articlescreen
 
+import android.annotation.SuppressLint
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.Box
@@ -28,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.viewinterop.AndroidView
 
+@SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArticleScreen(url: String, onBackPressed: () -> Unit) {
@@ -62,7 +67,18 @@ fun ArticleScreen(url: String, onBackPressed: () -> Unit) {
                         override fun onPageFinished(view: WebView?, url: String?) {
                             isLoading = false
                         }
+
+                        override fun onReceivedError(
+                            view: WebView?,
+                            request: WebResourceRequest?,
+                            error: WebResourceError?
+                        ) {
+                            super.onReceivedError(view, request, error)
+                        }
                     }
+                    settings.javaScriptEnabled = true
+                    settings.userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/90.0.4430.85 Safari/537.36"
+                    settings.mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
                     loadUrl(url ?: "")
                 }
             })
